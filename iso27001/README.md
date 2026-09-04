@@ -29,4 +29,4 @@ Under development. Notes are added as study progresses.
 
 ---
 
-**Author:** Antonio Johnson | Security Engineer II / Enterprise AI Engineer
+**Author:** SwooshJ-SecAI | Security Engineer II / Enterprise AI Engineer
