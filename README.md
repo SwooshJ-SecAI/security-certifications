@@ -37,7 +37,7 @@ security-certifications/
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/ajohnson/security-certifications.git
+   git clone https://github.com/SwooshJ-SecAI/security-certifications.git
    ```
 2. Copy `notes-template.md` into the relevant certification directory
 3. Rename the copy to match the topic or exam domain
@@ -70,4 +70,4 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ---
 
-**Author:** Antonio Johnson | Security Engineer II / Enterprise AI Engineer
+**Author:** SwooshJ-SecAI | Security Engineer II / Enterprise AI Engineer
