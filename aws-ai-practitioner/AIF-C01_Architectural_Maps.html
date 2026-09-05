@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--color-bg, #ffffff); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--color-text, #172b4d); padding: 32px; line-height: 1.5; }
+h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+h2 { font-size: 16px; font-weight: 600; margin: 40px 0 16px; border-bottom: 2px solid var(--color-border, #dfe1e6); padding-bottom: 8px; }
+.subtitle { font-size: 13px; color: var(--color-text-secondary, #44546f); margin-bottom: 32px; }
+.map-container { margin: 24px 0; overflow-x: auto; }
+svg { display: block; margin: 0 auto; }
+.map-caption { font-size: 12px; color: var(--color-text-muted, #8993a4); margin-top: 12px; font-style: italic; }
+
+/* SVG styles */
+.block { fill: #f4f5f7; stroke: #44546f; stroke-width: 1.5; }
+.block-primary { fill: #1e40af; stroke: #1e3a8a; stroke-width: 1.5; }
+.block-green { fill: #166534; stroke: #14532d; stroke-width: 1.5; }
+.block-purple { fill: #7e22ce; stroke: #6b21a8; stroke-width: 1.5; }
+.block-amber { fill: #92400e; stroke: #78350f; stroke-width: 1.5; }
+.block-red { fill: #991b1b; stroke: #7f1d1d; stroke-width: 1.5; }
+.block-teal { fill: #0f766e; stroke: #115e59; stroke-width: 1.5; }
+.block-dark { fill: #1e293b; stroke: #0f172a; stroke-width: 1.5; }
+.block-light { fill: #ffffff; stroke: #64748b; stroke-width: 1.5; rx: 4; }
+
+.label-white { fill: #ffffff; font-size: 11px; font-weight: 600; text-anchor: middle; }
+.label-dark { fill: #1e293b; font-size: 11px; font-weight: 600; text-anchor: middle; }
+.label-sub { fill: #e2e8f0; font-size: 9px; text-anchor: middle; }
+.label-sub-dark { fill: #64748b; font-size: 9px; text-anchor: middle; }
+.label-tiny { fill: #94a3b8; font-size: 8px; text-anchor: middle; }
+
+.arrow { fill: none; stroke: #475569; stroke-width: 1.5; marker-end: url(#arrowhead); }
+.arrow-dashed { fill: none; stroke: #475569; stroke-width: 1.2; stroke-dasharray: 4,3; marker-end: url(#arrowhead); }
+.arrow-feedback { fill: none; stroke: #f59e0b; stroke-width: 1.2; stroke-dasharray: 4,3; marker-end: url(#arrowhead-amber); }
+
+.edge-label { fill: #475569; font-size: 9px; text-anchor: middle; font-style: italic; }
+
+.subgraph { fill: none; stroke: #94a3b8; stroke-width: 1; stroke-dasharray: 6,4; rx: 8; }
+.subgraph-label { fill: #64748b; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.decision { fill: #fef3c7; stroke: #92400e; stroke-width: 1.5; }
+.decision-label { fill: #1e293b; font-size: 10px; font-weight: 600; text-anchor: middle; }
+
+.condition-label { fill: #1e293b; font-size: 9px; font-weight: 500; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 16px; }
+th { text-align: left; color: var(--color-text-muted, #8993a4); font-weight: 500; padding: 6px 10px; border-bottom: 1px solid var(--color-border, #dfe1e6); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+td { padding: 6px 10px; color: var(--color-text, #172b4d); border-bottom: 1px solid var(--color-border-light, #ebecf0); }
+td:first-child { font-weight: 500; }
+</style>
+</head>
+<body>
+
+<h1>AIF-C01 Architectural Maps</h1>
+<p class="subtitle">System-model diagrams showing where AWS AI/ML services live in the infrastructure, how data flows between them, and the conditional logic that determines which path to take given scenario constraints.</p>
+
+<!-- MAP 1: Infrastructure Stack -->
+<h2>Map 1: AWS AI/ML Infrastructure Stack</h2>
+<div class="map-container">
+<svg width="820" height="620" viewBox="0 0 820 620">
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+  </marker>
+  <marker id="arrowhead-amber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#f59e0b"/>
+  </marker>
+</defs>
+
+<!-- Application Layer -->
+<rect x="20" y="20" width="780" height="50" class="block-dark" rx="4"/>
+<text x="410" y="42" class="label-white" font-size="12">APPLICATION LAYER</text>
+<text x="410" y="57" class="label-sub">Your Code / API Consumer / UI</text>
+
+<!-- Managed AI Services -->
+<rect x="20" y="95" width="380" height="160" class="subgraph" rx="6"/>
+<text x="40" y="112" class="subgraph-label">Managed AI Services (No Infra, No ML Knowledge)</text>
+
+<rect x="35" y="122" width="105" height="40" class="block-green" rx="3"/>
+<text x="87" y="140" class="label-white">Comprehend</text>
+<text x="87" y="152" class="label-sub">NLP, Sentiment</text>
+
+<rect x="150" y="122" width="105" height="40" class="block-green" rx="3"/>
+<text x="202" y="140" class="label-white">Rekognition</text>
+<text x="202" y="152" class="label-sub">Image, Video</text>
+
+<rect x="265" y="122" width="105" height="40" class="block-green" rx="3"/>
+<text x="317" y="140" class="label-white">Textract</text>
+<text x="317" y="152" class="label-sub">OCR, Forms</text>
+
+<rect x="35" y="172" width="105" height="40" class="block-green" rx="3"/>
+<text x="87" y="190" class="label-white">Polly</text>
+<text x="87" y="202" class="label-sub">Text-to-Speech</text>
+
+<rect x="150" y="172" width="105" height="40" class="block-green" rx="3"/>
+<text x="202" y="190" class="label-white">Transcribe</text>
+<text x="202" y="202" class="label-sub">Speech-to-Text</text>
+
+<rect x="265" y="172" width="105" height="40" class="block-green" rx="3"/>
+<text x="317" y="190" class="label-white">Kendra</text>
+<text x="317" y="202" class="label-sub">Enterprise Search</text>
+
+<rect x="35" y="222" width="105" height="22" class="block-green" rx="3"/>
+<text x="87" y="237" class="label-white" font-size="9">Lex (Chatbots)</text>
+
+<rect x="150" y="222" width="105" height="22" class="block-green" rx="3"/>
+<text x="202" y="237" class="label-white" font-size="9">Personalize</text>
+
+<!-- Bedrock Layer -->
+<rect x="420" y="95" width="380" height="160" class="subgraph" rx="6"/>
+<text x="440" y="112" class="subgraph-label">Amazon Bedrock (Serverless FM Access)</text>
+
+<rect x="435" y="122" width="160" height="40" class="block-primary" rx="3"/>
+<text x="515" y="140" class="label-white">Bedrock Unified API</text>
+<text x="515" y="152" class="label-sub">Titan, Claude, Llama, Mistral</text>
+
+<rect x="610" y="122" width="170" height="40" class="block-primary" rx="3"/>
+<text x="695" y="140" class="label-white">Knowledge Bases</text>
+<text x="695" y="152" class="label-sub">RAG Implementation</text>
+
+<rect x="435" y="172" width="160" height="40" class="block-primary" rx="3"/>
+<text x="515" y="190" class="label-white">Guardrails</text>
+<text x="515" y="202" class="label-sub">Content Filtering, Topic Denial</text>
+
+<rect x="610" y="172" width="170" height="40" class="block-primary" rx="3"/>
+<text x="695" y="190" class="label-white">Bedrock Agents</text>
+<text x="695" y="202" class="label-sub">Multi-step Orchestration</text>
+
+<!-- SageMaker Layer -->
+<rect x="20" y="280" width="780" height="120" class="subgraph" rx="6"/>
+<text x="40" y="297" class="subgraph-label">Amazon SageMaker (You Manage Compute)</text>
+
+<rect x="35" y="307" width="110" height="40" class="block-purple" rx="3"/>
+<text x="90" y="325" class="label-white">JumpStart</text>
+<text x="90" y="337" class="label-sub">Pre-built, VPC</text>
+
+<rect x="155" y="307" width="100" height="40" class="block-purple" rx="3"/>
+<text x="205" y="325" class="label-white">Canvas</text>
+<text x="205" y="337" class="label-sub">No-Code ML</text>
+
+<rect x="265" y="307" width="100" height="40" class="block-purple" rx="3"/>
+<text x="315" y="325" class="label-white">Autopilot</text>
+<text x="315" y="337" class="label-sub">AutoML</text>
+
+<rect x="375" y="307" width="130" height="40" class="block-purple" rx="3"/>
+<text x="440" y="325" class="label-white">Studio (Full IDE)</text>
+<text x="440" y="337" class="label-sub">Build/Train/Deploy</text>
+
+<rect x="515" y="307" width="130" height="40" class="block-purple" rx="3"/>
+<text x="580" y="325" class="label-white">Endpoints</text>
+<text x="580" y="337" class="label-sub">RT / Async / Batch</text>
+
+<rect x="655" y="307" width="130" height="40" class="block-purple" rx="3"/>
+<text x="720" y="325" class="label-white">Neo</text>
+<text x="720" y="337" class="label-sub">Edge / IoT Deploy</text>
+
+<rect x="35" y="357" width="110" height="28" class="block-purple" rx="3"/>
+<text x="90" y="375" class="label-white" font-size="9">Ground Truth</text>
+
+<rect x="155" y="357" width="100" height="28" class="block-purple" rx="3"/>
+<text x="205" y="375" class="label-white" font-size="9">Data Wrangler</text>
+
+<rect x="265" y="357" width="100" height="28" class="block-purple" rx="3"/>
+<text x="315" y="375" class="label-white" font-size="9">Feature Store</text>
+
+<rect x="375" y="357" width="130" height="28" class="block-purple" rx="3"/>
+<text x="440" y="375" class="label-white" font-size="9">Clarify (Bias)</text>
+
+<rect x="515" y="357" width="130" height="28" class="block-purple" rx="3"/>
+<text x="580" y="375" class="label-white" font-size="9">Model Cards</text>
+
+<rect x="655" y="357" width="130" height="28" class="block-purple" rx="3"/>
+<text x="720" y="375" class="label-white" font-size="9">Pipelines</text>
+
+<!-- Data Layer -->
+<rect x="20" y="425" width="380" height="70" class="subgraph" rx="6"/>
+<text x="40" y="442" class="subgraph-label">Data & Storage</text>
+
+<rect x="35" y="452" width="110" height="32" class="block-teal" rx="3"/>
+<text x="90" y="472" class="label-white">Amazon S3</text>
+
+<rect x="155" y="452" width="120" height="32" class="block-teal" rx="3"/>
+<text x="215" y="472" class="label-white">OpenSearch</text>
+
+<rect x="285" y="452" width="100" height="32" class="block-teal" rx="3"/>
+<text x="335" y="472" class="label-white">DynamoDB</text>
+
+<!-- Security Layer -->
+<rect x="420" y="425" width="380" height="70" class="subgraph" rx="6"/>
+<text x="440" y="442" class="subgraph-label">Security, Governance & Observability</text>
+
+<rect x="435" y="452" width="70" height="32" class="block-red" rx="3"/>
+<text x="470" y="472" class="label-white">IAM</text>
+
+<rect x="515" y="452" width="90" height="32" class="block-red" rx="3"/>
+<text x="560" y="472" class="label-white">CloudTrail</text>
+
+<rect x="615" y="452" width="90" height="32" class="block-red" rx="3"/>
+<text x="660" y="472" class="label-white">CloudWatch</text>
+
+<rect x="715" y="452" width="70" height="32" class="block-red" rx="3"/>
+<text x="750" y="472" class="label-white">Macie</text>
+
+<!-- Arrows from App Layer down -->
+<path d="M 200 70 L 200 95" class="arrow"/>
+<path d="M 610 70 L 610 95" class="arrow"/>
+<path d="M 410 70 L 410 280" class="arrow"/>
+
+<!-- Arrow from Bedrock KB to S3/OpenSearch -->
+<path d="M 695 162 L 695 240 L 215 240 L 215 452" class="arrow-dashed"/>
+<text x="450" y="236" class="edge-label">vector store / source data</text>
+
+<!-- Arrow from SageMaker to S3 -->
+<path d="M 90 395 L 90 452" class="arrow"/>
+
+<!-- Security wraps all -->
+<path d="M 800 460 L 810 460 L 810 30 L 800 30" class="arrow-feedback"/>
+<text x="805" y="250" class="edge-label" transform="rotate(90, 805, 250)">wraps all layers</text>
+
+<!-- Legend -->
+<rect x="20" y="520" width="780" height="80" rx="6" fill="none" stroke="#e2e8f0" stroke-width="1"/>
+<text x="40" y="540" font-size="10" font-weight="600" fill="#64748b">READING THE MAP</text>
+<text x="40" y="558" font-size="10" fill="#475569">Higher in the stack = less expertise required, less infrastructure ownership.</text>
+<text x="40" y="573" font-size="10" fill="#475569">Lower in the stack = more control, more responsibility, more cost.</text>
+<text x="40" y="588" font-size="10" fill="#475569">Security and Governance wrap around everything as cross-cutting concerns (right edge feedback loop).</text>
+
+</svg>
+</div>
+<p class="map-caption">Services are layered by ownership level. Exam questions route to a layer based on the "expertise" and "infrastructure" constraint keywords in the stem.</p>
+
+<!-- MAP 2: Service Selection Decision Model -->
+<h2>Map 2: Service Selection Decision Model</h2>
+<div class="map-container">
+<svg width="780" height="520" viewBox="0 0 780 520">
+<defs>
+  <marker id="arrowhead2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+  </marker>
+</defs>
+
+<!-- Input -->
+<rect x="300" y="20" width="180" height="44" class="block-dark" rx="4"/>
+<text x="390" y="40" class="label-white">Scenario Question</text>
+<text x="390" y="54" class="label-sub">Constraint Keywords</text>
+
+<!-- First decision -->
+<polygon points="390,90 500,140 390,190 280,140" class="decision"/>
+<text x="390" y="136" class="decision-label">Task requires</text>
+<text x="390" y="149" class="decision-label">generative AI?</text>
+
+<!-- Left branch: No - Managed Services -->
+<path d="M 280 140 L 130 140" class="arrow" marker-end="url(#arrowhead2)"/>
+<text x="200" y="133" class="condition-label">No</text>
+
+<rect x="30" y="120" width="100" height="40" class="block-green" rx="3"/>
+<text x="80" y="138" class="label-white">Managed AI</text>
+<text x="80" y="150" class="label-sub">Service</text>
+
+<!-- Sub-decisions under managed -->
+<rect x="10" y="185" width="65" height="28" class="block-green" rx="2"/>
+<text x="42" y="203" class="label-white" font-size="8">Sentiment</text>
+<rect x="80" y="185" width="65" height="28" class="block-green" rx="2"/>
+<text x="112" y="203" class="label-white" font-size="8">Image/Video</text>
+<rect x="10" y="220" width="65" height="28" class="block-green" rx="2"/>
+<text x="42" y="238" class="label-white" font-size="8">OCR/Forms</text>
+<rect x="80" y="220" width="65" height="28" class="block-green" rx="2"/>
+<text x="112" y="238" class="label-white" font-size="8">Search</text>
+
+<path d="M 50 160 L 50 185" class="arrow" marker-end="url(#arrowhead2)"/>
+<path d="M 110 160 L 110 185" class="arrow" marker-end="url(#arrowhead2)"/>
+<text x="30" y="260" class="label-tiny">Comprehend</text>
+<text x="95" y="260" class="label-tiny">Rekognition</text>
+<text x="30" y="275" class="label-tiny">Textract</text>
+<text x="100" y="275" class="label-tiny">Kendra</text>
+
+<!-- Right branch: Yes -->
+<path d="M 390 190 L 390 230" class="arrow" marker-end="url(#arrowhead2)"/>
+<text x="398" y="215" class="condition-label">Yes</text>
+
+<!-- Second decision -->
+<polygon points="390,230 510,280 390,330 270,280" class="decision"/>
+<text x="390" y="273" class="decision-label">Company manages</text>
+<text x="390" y="286" class="decision-label">infrastructure?</text>
+
+<!-- Left: No infra -->
+<path d="M 270 280 L 180 280" class="arrow" marker-end="url(#arrowhead2)"/>
+<text x="220" y="273" class="condition-label">No</text>
+
+<rect x="80" y="265" width="100" height="34" class="block-primary" rx="3"/>
+<text x="130" y="281" class="label-white">Bedrock</text>
+<text x="130" y="292" class="label-sub">Serverless FM</text>
+
+<!-- Branch from Bedrock: data freshness -->
+<path d="M 130 299 L 130 340" class="arrow" marker-end="url(#arrowhead2)"/>
+
+<polygon points="130,340 210,370 130,400 50,370" class="decision"/>
+<text x="130" y="367" class="decision-label">Data changes</text>
+<text x="130" y="380" class="decision-label">frequently?</text>
+
+<path d="M 50 370 L 10 370" class="arrow" marker-end="url(#arrowhead2)"/>
+<text x="30" y="363" class="condition-label" font-size="8">No</text>
+<rect x="-55" y="355" width="65" height="30" class="block-amber" rx="2"/>
+<text x="-22" y="374" class="label-white" font-size="9">Fine-Tune</text>
+
+<path d="M 210 370 L 250 370" class="arrow" marker-end="url(#arrowhead2)"/>
+<text x="225" y="363" class="condition-label" font-size="8">Yes</text>
+<rect x="250" y="355" width="55" height="30" class="block-teal" rx="2"/>
+<text x="277" y="374" class="label-white" font-size="9">RAG</text>
+
+<!-- Right: Yes infra -->
+<path d="M 510 280 L 580 280" class="arrow" marker-end="url(#arrowhead2)"/>
+<text x="540" y="273" class="condition-label">Yes</text>
+
+<!-- Third decision -->
+<polygon points="660,255 760,280 660,305 560,280" class="decision"/>
+<text x="660" y="277" class="decision-label">Level of</text>
+<text x="660" y="290" class="decision-label">customization?</text>
+
+<!-- SageMaker options -->
+<path d="M 660 305 L 660 340" class="arrow" marker-end="url(#arrowhead2)"/>
+
+<rect x="540" y="340" width="90" height="30" class="block-purple" rx="2"/>
+<text x="585" y="359" class="label-white" font-size="9">JumpStart</text>
+<text x="585" y="370" class="label-sub" font-size="7">Pre-built</text>
+
+<rect x="640" y="340" width="80" height="30" class="block-purple" rx="2"/>
+<text x="680" y="359" class="label-white" font-size="9">Canvas</text>
+<text x="680" y="370" class="label-sub" font-size="7">No-code</text>
+
+<rect x="540" y="385" width="90" height="30" class="block-purple" rx="2"/>
+<text x="585" y="404" class="label-white" font-size="9">Autopilot</text>
+<text x="585" y="415" class="label-sub" font-size="7">AutoML</text>
+
+<rect x="640" y="385" width="80" height="30" class="block-purple" rx="2"/>
+<text x="680" y="404" class="label-white" font-size="9">Studio</text>
+<text x="680" y="415" class="label-sub" font-size="7">Full custom</text>
+
+<!-- Condition labels for SM options -->
+<text x="540" y="440" font-size="8" fill="#64748b">"pre-built" / "limited expertise"</text>
+<text x="540" y="452" font-size="8" fill="#64748b">"no code" / "business analyst"</text>
+<text x="540" y="464" font-size="8" fill="#64748b">"automatically" / "full visibility"</text>
+<text x="540" y="476" font-size="8" fill="#64748b">"custom" / "build, train, deploy"</text>
+
+<!-- Bottom legend -->
+<rect x="30" y="460" width="480" height="50" rx="4" fill="none" stroke="#e2e8f0"/>
+<text x="50" y="478" font-size="9" font-weight="600" fill="#64748b">DECISION ROUTING LOGIC</text>
+<text x="50" y="493" font-size="9" fill="#475569">1. Identify task type (generative vs. pre-built). 2. Check infra constraint. 3. Check data freshness or customization level.</text>
+
+</svg>
+</div>
+<p class="map-caption">Follow the decision diamonds from top to bottom. Each branch corresponds to a constraint keyword found in the question's final sentence.</p>
+
+<!-- MAP 3: RAG Architecture -->
+<h2>Map 3: RAG System Architecture — Data Flow</h2>
+<div class="map-container">
+<svg width="780" height="340" viewBox="0 0 780 340">
+<defs>
+  <marker id="arrowhead3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+  </marker>
+</defs>
+
+<!-- Ingestion Pipeline (top) -->
+<rect x="20" y="20" width="740" height="100" class="subgraph" rx="6"/>
+<text x="40" y="38" class="subgraph-label">Ingestion Pipeline (Offline / Batch)</text>
+
+<rect x="40" y="50" width="120" height="50" class="block-teal" rx="3"/>
+<text x="100" y="72" class="label-white">Source Documents</text>
+<text x="100" y="85" class="label-sub">S3, DBs, APIs</text>
+
+<path d="M 160 75 L 195 75" class="arrow" marker-end="url(#arrowhead3)"/>
+<text x="178" y="68" class="edge-label">read</text>
+
+<rect x="195" y="50" width="120" height="50" class="block-dark" rx="3"/>
+<text x="255" y="72" class="label-white">Chunking</text>
+<text x="255" y="85" class="label-sub">Split into passages</text>
+
+<path d="M 315 75 L 350 75" class="arrow" marker-end="url(#arrowhead3)"/>
+<text x="333" y="68" class="edge-label">chunks</text>
+
+<rect x="350" y="50" width="140" height="50" class="block-primary" rx="3"/>
+<text x="420" y="72" class="label-white">Embedding Model</text>
+<text x="420" y="85" class="label-sub">Titan Embeddings</text>
+
+<path d="M 490 75 L 530 75" class="arrow" marker-end="url(#arrowhead3)"/>
+<text x="510" y="68" class="edge-label">vectors</text>
+
+<rect x="530" y="50" width="140" height="50" class="block-teal" rx="3"/>
+<text x="600" y="72" class="label-white">Vector Store</text>
+<text x="600" y="85" class="label-sub">OpenSearch / Pinecone</text>
+
+<!-- Inference Path (bottom) -->
+<rect x="20" y="150" width="740" height="160" class="subgraph" rx="6"/>
+<text x="40" y="168" class="subgraph-label">Inference Path (Per Query — Real-time)</text>
+
+<rect x="40" y="185" width="100" height="50" class="block-dark" rx="3"/>
+<text x="90" y="207" class="label-white">User Query</text>
+<text x="90" y="220" class="label-sub">Natural language</text>
+
+<path d="M 140 210 L 175 210" class="arrow" marker-end="url(#arrowhead3)"/>
+
+<rect x="175" y="185" width="120" height="50" class="block-primary" rx="3"/>
+<text x="235" y="207" class="label-white">Query Embedding</text>
+<text x="235" y="220" class="label-sub">Same model as ingestion</text>
+
+<path d="M 295 210 L 335 210" class="arrow" marker-end="url(#arrowhead3)"/>
+<text x="315" y="203" class="edge-label">vector</text>
+
+<rect x="335" y="185" width="130" height="50" class="block-teal" rx="3"/>
+<text x="400" y="207" class="label-white">Similarity Search</text>
+<text x="400" y="220" class="label-sub">Nearest Neighbor (Top-K)</text>
+
+<path d="M 465 210 L 505 210" class="arrow" marker-end="url(#arrowhead3)"/>
+<text x="485" y="203" class="edge-label">context</text>
+
+<rect x="505" y="185" width="120" height="50" class="block-primary" rx="3"/>
+<text x="565" y="207" class="label-white">Foundation Model</text>
+<text x="565" y="220" class="label-sub">Bedrock (Generate)</text>
+
+<path d="M 625 210 L 660 210" class="arrow" marker-end="url(#arrowhead3)"/>
+
+<rect x="660" y="185" width="90" height="50" class="block-green" rx="3"/>
+<text x="705" y="207" class="label-white">Response</text>
+<text x="705" y="220" class="label-sub">Grounded</text>
+
+<!-- Connection: Vector Store feeds Similarity Search -->
+<path d="M 600 100 L 600 140 L 400 140 L 400 185" class="arrow-dashed" marker-end="url(#arrowhead3)"/>
+<text x="500" y="135" class="edge-label">index lookup</text>
+
+<!-- Key conditions -->
+<text x="40" y="275" font-size="10" font-weight="600" fill="#64748b">WHEN TO USE RAG:</text>
+<text x="40" y="292" font-size="10" fill="#475569">Data changes frequently | "most recent information" | "external sources" | "least development effort" with external knowledge</text>
+<text x="40" y="309" font-size="10" font-weight="600" fill="#64748b">WHEN NOT TO USE RAG (Use Fine-tuning instead):</text>
+<text x="40" y="326" font-size="10" fill="#475569">Stable domain | "consistent tone" | No external data dependency | "specialize in medical/legal/finance"</text>
+
+</svg>
+</div>
+
+<!-- MAP 4: Security Model -->
+<h2>Map 4: Security Infrastructure Model</h2>
+<div class="map-container">
+<svg width="780" height="400" viewBox="0 0 780 400">
+<defs>
+  <marker id="arrowhead4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+  </marker>
+</defs>
+
+<!-- Perimeter -->
+<rect x="20" y="20" width="740" height="70" class="subgraph" rx="6"/>
+<text x="40" y="38" class="subgraph-label">Perimeter Controls — WHO can access WHAT</text>
+
+<rect x="40" y="48" width="150" height="34" class="block-dark" rx="3"/>
+<text x="115" y="64" class="label-white">AWS IAM</text>
+<text x="115" y="76" class="label-sub">Roles, Policies, Least Privilege</text>
+
+<rect x="210" y="48" width="130" height="34" class="block-dark" rx="3"/>
+<text x="275" y="64" class="label-white">VPC / PrivateLink</text>
+<text x="275" y="76" class="label-sub">Network Isolation</text>
+
+<rect x="360" y="48" width="120" height="34" class="block-dark" rx="3"/>
+<text x="420" y="64" class="label-white">AWS KMS</text>
+<text x="420" y="76" class="label-sub">Encryption</text>
+
+<!-- Detection -->
+<rect x="20" y="110" width="740" height="90" class="subgraph" rx="6"/>
+<text x="40" y="128" class="subgraph-label">Detection & Logging — WHAT happened</text>
+
+<rect x="40" y="140" width="160" height="46" class="block-red" rx="3"/>
+<text x="120" y="158" class="label-white">AWS CloudTrail</text>
+<text x="120" y="171" class="label-sub">API call + user + timestamp</text>
+<text x="120" y="182" class="label-sub">"Who did what, when?"</text>
+
+<rect x="220" y="140" width="160" height="46" class="block-red" rx="3"/>
+<text x="300" y="158" class="label-white">Amazon CloudWatch</text>
+<text x="300" y="171" class="label-sub">Metrics, alarms, dashboards</text>
+<text x="300" y="182" class="label-sub">"Is it healthy?"</text>
+
+<rect x="400" y="140" width="160" height="46" class="block-red" rx="3"/>
+<text x="480" y="158" class="label-white">Amazon Inspector</text>
+<text x="480" y="171" class="label-sub">EC2, ECR, Lambda scanning</text>
+<text x="480" y="182" class="label-sub">"Is infra vulnerable?"</text>
+
+<rect x="580" y="140" width="160" height="46" class="block-red" rx="3"/>
+<text x="660" y="158" class="label-white">Amazon Macie</text>
+<text x="660" y="171" class="label-sub">PII discovery in S3</text>
+<text x="660" y="182" class="label-sub">"Is data exposed?"</text>
+
+<!-- AI-Specific Controls -->
+<rect x="20" y="220" width="740" height="90" class="subgraph" rx="6"/>
+<text x="40" y="238" class="subgraph-label">AI-Specific Controls — Content & Fairness</text>
+
+<rect x="40" y="250" width="160" height="46" class="block-amber" rx="3"/>
+<text x="120" y="268" class="label-white">Bedrock Guardrails</text>
+<text x="120" y="281" class="label-sub">Input/output content filter</text>
+<text x="120" y="292" class="label-sub">Topics, PII, attacks</text>
+
+<rect x="220" y="250" width="160" height="46" class="block-amber" rx="3"/>
+<text x="300" y="268" class="label-white">SageMaker Clarify</text>
+<text x="300" y="281" class="label-sub">Bias detection, explainability</text>
+<text x="300" y="292" class="label-sub">"Is the model fair?"</text>
+
+<rect x="400" y="250" width="160" height="46" class="block-amber" rx="3"/>
+<text x="480" y="268" class="label-white">Amazon A2I</text>
+<text x="480" y="281" class="label-sub">Human review workflow</text>
+<text x="480" y="292" class="label-sub">"Model not confident"</text>
+
+<rect x="580" y="250" width="160" height="46" class="block-amber" rx="3"/>
+<text x="660" y="268" class="label-white">Model Cards</text>
+<text x="660" y="281" class="label-sub">Immutable documentation</text>
+<text x="660" y="292" class="label-sub">"Record model info"</text>
+
+<!-- Compliance -->
+<rect x="20" y="330" width="360" height="50" class="subgraph" rx="6"/>
+<text x="40" y="348" class="subgraph-label">Compliance & Governance</text>
+<rect x="40" y="355" width="140" height="20" class="block-purple" rx="2"/>
+<text x="110" y="369" class="label-white" font-size="9">AWS Artifact (Reports)</text>
+<rect x="195" y="355" width="140" height="20" class="block-purple" rx="2"/>
+<text x="265" y="369" class="label-white" font-size="9">AWS Config (Changes)</text>
+
+<!-- Arrows showing layered relationship -->
+<path d="M 120 90 L 120 140" class="arrow" marker-end="url(#arrowhead4)"/>
+<path d="M 300 90 L 300 140" class="arrow" marker-end="url(#arrowhead4)"/>
+<path d="M 300 200 L 300 250" class="arrow" marker-end="url(#arrowhead4)"/>
+<text x="308" y="225" class="edge-label">feeds into</text>
+<path d="M 120 200 L 120 330" class="arrow-dashed" marker-end="url(#arrowhead4)"/>
+<text x="128" y="322" class="edge-label">audit trail</text>
+
+</svg>
+</div>
+
+<table>
+<tr><th>IF the question asks...</th><th>THEN the answer is...</th></tr>
+<tr><td>"Who can access" / "authorize" / "permissions"</td><td>IAM</td></tr>
+<tr><td>"Log API calls" / "audit" / "who + when"</td><td>CloudTrail</td></tr>
+<tr><td>"Monitor" / "alarms" / "metrics" / "health"</td><td>CloudWatch</td></tr>
+<tr><td>"Vulnerability" / "scan EC2/ECR"</td><td>Inspector</td></tr>
+<tr><td>"Sensitive data in S3" / "PII discovery"</td><td>Macie</td></tr>
+<tr><td>"Compliance reports" / "certifications"</td><td>Artifact</td></tr>
+<tr><td>"Filter content" / "block topics" / "prompt attacks"</td><td>Guardrails</td></tr>
+<tr><td>"Bias" / "explainability" / "transparent"</td><td>Clarify</td></tr>
+<tr><td>"Human review" / "low confidence"</td><td>A2I</td></tr>
+<tr><td>"Document model info" / "risk ratings"</td><td>Model Cards</td></tr>
+</table>
+
+<!-- MAP 5: Responsible AI Pipeline -->
+<h2>Map 5: Responsible AI — Where Controls Attach in the ML Pipeline</h2>
+<div class="map-container">
+<svg width="780" height="280" viewBox="0 0 780 280">
+<defs>
+  <marker id="arrowhead5" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+  </marker>
+  <marker id="arrowhead5-amber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#f59e0b"/>
+  </marker>
+</defs>
+
+<!-- Pipeline stages -->
+<rect x="30" y="80" width="130" height="50" class="block-teal" rx="3"/>
+<text x="95" y="102" class="label-white">Training Data</text>
+<text x="95" y="115" class="label-sub">Collection & Prep</text>
+
+<path d="M 160 105 L 195 105" class="arrow" marker-end="url(#arrowhead5)"/>
+
+<rect x="195" y="80" width="130" height="50" class="block-purple" rx="3"/>
+<text x="260" y="102" class="label-white">Model Training</text>
+<text x="260" y="115" class="label-sub">Fit parameters</text>
+
+<path d="M 325 105 L 365 105" class="arrow" marker-end="url(#arrowhead5)"/>
+
+<rect x="365" y="80" width="130" height="50" class="block-primary" rx="3"/>
+<text x="430" y="102" class="label-white">Deployment</text>
+<text x="430" y="115" class="label-sub">Model Endpoint</text>
+
+<path d="M 495 105 L 535 105" class="arrow" marker-end="url(#arrowhead5)"/>
+
+<rect x="535" y="80" width="130" height="50" class="block-dark" rx="3"/>
+<text x="600" y="102" class="label-white">Inference</text>
+<text x="600" y="115" class="label-sub">User requests</text>
+
+<path d="M 665 105 L 700 105" class="arrow" marker-end="url(#arrowhead5)"/>
+
+<rect x="700" y="88" width="60" height="34" class="block-green" rx="3"/>
+<text x="730" y="109" class="label-white" font-size="9">Output</text>
+
+<!-- Controls attached below -->
+<rect x="30" y="165" width="130" height="40" class="block-amber" rx="3"/>
+<text x="95" y="182" class="label-white" font-size="9">Clarify: Pre-training</text>
+<text x="95" y="194" class="label-sub">Bias in data</text>
+<path d="M 95 130 L 95 165" class="arrow-dashed" marker-end="url(#arrowhead5)"/>
+
+<rect x="30" y="215" width="130" height="30" class="block-teal" rx="3"/>
+<text x="95" y="234" class="label-white" font-size="9">Data Augmentation</text>
+<path d="M 95 205 L 95 215" class="arrow-dashed" marker-end="url(#arrowhead5)"/>
+<text x="95" y="258" class="label-sub-dark" font-size="8">Fix imbalanced classes</text>
+
+<rect x="195" y="165" width="130" height="40" class="block-amber" rx="3"/>
+<text x="260" y="182" class="label-white" font-size="9">Clarify: Post-training</text>
+<text x="260" y="194" class="label-sub">Bias in predictions</text>
+<path d="M 260 130 L 260 165" class="arrow-dashed" marker-end="url(#arrowhead5)"/>
+
+<rect x="365" y="165" width="130" height="40" class="block-red" rx="3"/>
+<text x="430" y="182" class="label-white" font-size="9">Guardrails</text>
+<text x="430" y="194" class="label-sub">Filter input/output</text>
+<path d="M 430 130 L 430 165" class="arrow-dashed" marker-end="url(#arrowhead5)"/>
+
+<rect x="535" y="165" width="130" height="40" class="block-primary" rx="3"/>
+<text x="600" y="182" class="label-white" font-size="9">A2I: Human Review</text>
+<text x="600" y="194" class="label-sub">Low-confidence routing</text>
+<path d="M 600 130 L 600 165" class="arrow-dashed" marker-end="url(#arrowhead5)"/>
+
+<!-- Feedback loop from A2I back -->
+<path d="M 600 205 L 600 260 L 260 260 L 260 205" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arrowhead5-amber)"/>
+<text x="430" y="255" class="edge-label" style="fill:#92400e">feedback loop: human corrections improve model</text>
+
+<!-- Model Cards spans all -->
+<rect x="700" y="165" width="60" height="40" class="block-dark" rx="3"/>
+<text x="730" y="182" class="label-white" font-size="8">Model</text>
+<text x="730" y="194" class="label-white" font-size="8">Cards</text>
+<path d="M 730 130 L 730 165" class="arrow-dashed" marker-end="url(#arrowhead5)"/>
+<text x="730" y="218" class="label-sub-dark" font-size="7">Documents all</text>
+<text x="730" y="228" class="label-sub-dark" font-size="7">stages</text>
+
+<!-- Legend at top -->
+<text x="30" y="35" font-size="10" font-weight="600" fill="#64748b">PIPELINE FLOW (left to right)</text>
+<text x="30" y="50" font-size="9" fill="#475569">Dashed lines show where each responsible AI control attaches. Amber feedback loop shows human corrections flowing back into training.</text>
+
+</svg>
+</div>
+
+<!-- MAP 6: Inference Latency -->
+<h2>Map 6: Inference Request Routing Model</h2>
+<div class="map-container">
+<svg width="780" height="260" viewBox="0 0 780 260">
+<defs>
+  <marker id="arrowhead6" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+  </marker>
+</defs>
+
+<!-- Input -->
+<rect x="30" y="100" width="100" height="44" class="block-dark" rx="3"/>
+<text x="80" y="118" class="label-white">Incoming</text>
+<text x="80" y="131" class="label-white">Request</text>
+
+<path d="M 130 122 L 180 122" class="arrow" marker-end="url(#arrowhead6)"/>
+
+<!-- Router -->
+<polygon points="240,95 310,122 240,149 170,122" class="decision"/>
+<text x="240" y="119" class="decision-label">Latency</text>
+<text x="240" y="132" class="decision-label">requirement?</text>
+
+<!-- Real-time path -->
+<path d="M 310 105 L 370 60" class="arrow" marker-end="url(#arrowhead6)"/>
+<text x="325" y="72" class="condition-label" font-size="8">under 60s</text>
+
+<rect x="370" y="30" width="180" height="60" class="block-green" rx="3"/>
+<text x="460" y="50" class="label-white">Real-time Endpoint</text>
+<text x="460" y="64" class="label-sub">Persistent, always warm</text>
+<text x="460" y="78" class="label-sub">Processing: under 60 seconds</text>
+
+<path d="M 550 60 L 620 60" class="arrow" marker-end="url(#arrowhead6)"/>
+<rect x="620" y="45" width="100" height="30" class="block-dark" rx="2"/>
+<text x="670" y="64" class="label-white" font-size="9">Immediate</text>
+
+<!-- Async path -->
+<path d="M 310 122 L 370 122" class="arrow" marker-end="url(#arrowhead6)"/>
+<text x="332" y="115" class="condition-label" font-size="8">min to 1hr</text>
+
+<rect x="370" y="97" width="180" height="50" class="block-amber" rx="3"/>
+<text x="460" y="115" class="label-white">Async Endpoint</text>
+<text x="460" y="128" class="label-sub">Request queue (SQS internal)</text>
+<text x="460" y="140" class="label-sub">Processing: up to 1 hour</text>
+
+<path d="M 550 122 L 620 122" class="arrow" marker-end="url(#arrowhead6)"/>
+<rect x="620" y="107" width="100" height="30" class="block-dark" rx="2"/>
+<text x="670" y="120" class="label-white" font-size="9">S3 / SNS</text>
+<text x="670" y="131" class="label-sub" font-size="7">notification</text>
+
+<!-- Batch path -->
+<path d="M 310 140 L 370 190" class="arrow" marker-end="url(#arrowhead6)"/>
+<text x="325" y="175" class="condition-label" font-size="8">hours/days</text>
+
+<rect x="370" y="170" width="180" height="50" class="block-red" rx="3"/>
+<text x="460" y="188" class="label-white">Batch Transform</text>
+<text x="460" y="201" class="label-sub">S3 input bucket (accumulated)</text>
+<text x="460" y="213" class="label-sub">Processing: hours to days</text>
+
+<path d="M 550 195 L 620 195" class="arrow" marker-end="url(#arrowhead6)"/>
+<rect x="620" y="180" width="100" height="30" class="block-dark" rx="2"/>
+<text x="670" y="195" class="label-white" font-size="9">S3 Output</text>
+<text x="670" y="206" class="label-sub" font-size="7">bucket</text>
+
+<!-- Ordering label -->
+<text x="740" y="60" font-size="9" fill="#166534" font-weight="600">1 (lowest)</text>
+<text x="740" y="122" font-size="9" fill="#92400e" font-weight="600">2</text>
+<text x="740" y="195" font-size="9" fill="#991b1b" font-weight="600">3 (highest)</text>
+
+</svg>
+</div>
+<p class="map-caption">Ordering questions ask you to rank these from lowest to highest latency: Real-time (1) -> Asynchronous (2) -> Batch (3).</p>
+
+<!-- MAP 7: Evaluation Metrics -->
+<h2>Map 7: Evaluation Metric Selection Model</h2>
+<div class="map-container">
+<svg width="680" height="260" viewBox="0 0 680 260">
+<defs>
+  <marker id="arrowhead7" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+  </marker>
+</defs>
+
+<!-- Input -->
+<polygon points="120,30 220,60 120,90 20,60" class="decision"/>
+<text x="120" y="57" class="decision-label">What is the</text>
+<text x="120" y="70" class="decision-label">model doing?</text>
+
+<!-- Text generation branch -->
+<path d="M 220 45 L 320 30" class="arrow" marker-end="url(#arrowhead7)"/>
+<text x="260" y="28" class="condition-label" font-size="8">Text generation / summarization</text>
+
+<rect x="320" y="10" width="140" height="36" class="block-primary" rx="3"/>
+<text x="390" y="27" class="label-white">ROUGE</text>
+<text x="390" y="39" class="label-sub">Word/phrase overlap with reference</text>
+
+<rect x="480" y="10" width="140" height="36" class="block-purple" rx="3"/>
+<text x="550" y="27" class="label-white">BERTScore</text>
+<text x="550" y="39" class="label-sub">Semantic similarity (embeddings)</text>
+
+<!-- Classification branch -->
+<path d="M 220 60 L 320 90" class="arrow" marker-end="url(#arrowhead7)"/>
+<text x="255" y="83" class="condition-label" font-size="8">Classification (spam/not-spam)</text>
+
+<rect x="320" y="72" width="140" height="36" class="block-green" rx="3"/>
+<text x="390" y="89" class="label-white">Accuracy</text>
+<text x="390" y="101" class="label-sub">Correct / Total predictions</text>
+
+<rect x="480" y="72" width="140" height="36" class="block-amber" rx="3"/>
+<text x="550" y="89" class="label-white">F1 Score</text>
+<text x="550" y="101" class="label-sub">Harmonic mean (precision + recall)</text>
+
+<!-- Regression branch -->
+<path d="M 220 75 L 320 150" class="arrow" marker-end="url(#arrowhead7)"/>
+<text x="250" y="127" class="condition-label" font-size="8">Regression (predicting values)</text>
+
+<rect x="320" y="132" width="140" height="36" class="block-red" rx="3"/>
+<text x="390" y="149" class="label-white">RMSE</text>
+<text x="390" y="161" class="label-sub">Average prediction error</text>
+
+<rect x="480" y="132" width="140" height="36" class="block-dark" rx="3"/>
+<text x="550" y="149" class="label-white">R-squared</text>
+<text x="550" y="161" class="label-sub">Variance explained</text>
+
+<!-- Key callout -->
+<rect x="30" y="195" width="620" height="50" rx="4" fill="none" stroke="#e2e8f0"/>
+<text x="50" y="213" font-size="9" font-weight="600" fill="#64748b">EXAM PATTERN</text>
+<text x="50" y="228" font-size="9" fill="#475569">"Assess performance of FM for text generation" = ROUGE. "Classify images correctly" = Accuracy. "Predict prices" = RMSE or R-squared.</text>
+
+</svg>
+</div>
+
+<!-- MAP 8: Prompt Engineering Model -->
+<h2>Map 8: Prompt Engineering Technique Selection</h2>
+<div class="map-container">
+<svg width="780" height="280" viewBox="0 0 780 280">
+<defs>
+  <marker id="arrowhead8" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#475569"/>
+  </marker>
+</defs>
+
+<!-- Input conditions -->
+<rect x="30" y="100" width="140" height="50" class="block-dark" rx="3"/>
+<text x="100" y="120" class="label-white">Scenario</text>
+<text x="100" y="133" class="label-white">Constraints</text>
+
+<path d="M 170 125 L 210 125" class="arrow" marker-end="url(#arrowhead8)"/>
+
+<!-- Router -->
+<polygon points="280,95 370,125 280,155 190,125" class="decision"/>
+<text x="280" y="118" class="decision-label">Available</text>
+<text x="280" y="131" class="decision-label">resources?</text>
+
+<!-- Zero-shot -->
+<path d="M 370 105 L 430 50" class="arrow" marker-end="url(#arrowhead8)"/>
+<text x="385" y="60" class="condition-label" font-size="8">No examples, generic task</text>
+<rect x="430" y="30" width="140" height="40" class="block-green" rx="3"/>
+<text x="500" y="48" class="label-white">Zero-Shot</text>
+<text x="500" y="62" class="label-sub">Just the instruction, no examples</text>
+
+<!-- Few-shot -->
+<path d="M 370 115 L 430 105" class="arrow" marker-end="url(#arrowhead8)"/>
+<text x="385" y="97" class="condition-label" font-size="8">"Least effort" + style guidance</text>
+<rect x="430" y="85" width="140" height="40" class="block-primary" rx="3"/>
+<text x="500" y="103" class="label-white">Few-Shot</text>
+<text x="500" y="117" class="label-sub">2-5 examples in prompt</text>
+
+<!-- Fine-tuning -->
+<path d="M 370 135 L 430 155" class="arrow" marker-end="url(#arrowhead8)"/>
+<text x="385" y="147" class="condition-label" font-size="8">"Specialize" / "consistent tone"</text>
+<rect x="430" y="140" width="140" height="40" class="block-purple" rx="3"/>
+<text x="500" y="158" class="label-white">Fine-Tuning</text>
+<text x="500" y="172" class="label-sub">Thousands of labeled pairs</text>
+
+<!-- RAG -->
+<path d="M 370 145 L 430 210" class="arrow" marker-end="url(#arrowhead8)"/>
+<text x="385" y="193" class="condition-label" font-size="8">"Most recent" / "external sources"</text>
+<rect x="430" y="195" width="140" height="40" class="block-teal" rx="3"/>
+<text x="500" y="213" class="label-white">RAG</text>
+<text x="500" y="227" class="label-sub">Retrieve then generate</text>
+
+<!-- Effort scale on right -->
+<text x="600" y="50" font-size="9" fill="#166534" font-weight="500">Least effort</text>
+<text x="600" y="105" font-size="9" fill="#1e40af" font-weight="500">Low effort</text>
+<text x="600" y="160" font-size="9" fill="#7e22ce" font-weight="500">High effort</text>
+<text x="600" y="215" font-size="9" fill="#0f766e" font-weight="500">Moderate (infra)</text>
+<path d="M 590 40 L 590 230" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3" fill="none"/>
+<text x="590" y="255" font-size="8" fill="#64748b" text-anchor="middle">EFFORT AXIS</text>
+
+</svg>
+</div>
+
+<!-- MAP 9: Paired Distractors -->
+<h2>Map 9: Paired Distractor Reference — Infrastructure Context</h2>
+<table>
+<tr><th>Service A</th><th>Service B</th><th>They Both...</th><th>Distinction</th></tr>
+<tr><td>CloudTrail</td><td>CloudWatch</td><td>Observe your environment</td><td>Trail = audit log (who/what/when). Watch = live metrics/alarms</td></tr>
+<tr><td>Macie</td><td>Inspector</td><td>Find problems</td><td>Macie = data-level (PII in S3). Inspector = infra-level (CVEs in EC2/ECR)</td></tr>
+<tr><td>Bedrock</td><td>JumpStart</td><td>Serve foundation models</td><td>Bedrock = serverless API. JumpStart = you own the endpoint in your VPC</td></tr>
+<tr><td>Guardrails</td><td>Clarify</td><td>Responsible AI</td><td>Guardrails = runtime content filter. Clarify = training-time bias/explain</td></tr>
+<tr><td>Kendra</td><td>Bedrock KB</td><td>Search enterprise data</td><td>Kendra = returns documents. Bedrock KB = generates an answer (RAG)</td></tr>
+<tr><td>Textract</td><td>Comprehend</td><td>Process text</td><td>Textract = extracts from images/PDFs (OCR). Comprehend = analyzes meaning</td></tr>
+<tr><td>Fine-tuning</td><td>RAG</td><td>Improve FM output</td><td>Fine-tune = bake in static expertise. RAG = connect to live data</td></tr>
+<tr><td>A2I</td><td>Guardrails</td><td>Safety mechanism</td><td>A2I = human reviews uncertain predictions. Guardrails = blocks content automatically</td></tr>
+<tr><td>Overfitting</td><td>Underfitting</td><td>Model performance issues</td><td>Over = too complex (memorizes). Under = too simple (misses patterns)</td></tr>
+<tr><td>Real-time</td><td>Serverless</td><td>Serve predictions</td><td>Real-time = persistent endpoint (you scale). Serverless = auto-scales to zero</td></tr>
+</table>
+
+</body>
+</html>
