@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security+ SY0-701 — Causal Architectural Maps</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --bg:#0d1117; --surface:#161b22; --card:#1c2128; --border:#30363d; --border2:#21262d;
+    --t1:#e6edf3; --t2:#8b949e; --t3:#484f58;
+    --blue:#58a6ff; --green:#3fb950; --amber:#d29922; --purple:#bc8cff; --red:#f85149; --gold:#e3b341;
+  }
+  body{ background:var(--bg); color:var(--t1); font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    padding:36px 24px 80px; line-height:1.5; }
+  .wrap{ max-width:1080px; margin:0 auto; }
+  header.doc{ border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:8px; }
+  header.doc h1{ font-size:26px; font-weight:700; letter-spacing:.2px; }
+  header.doc p{ color:var(--t2); font-size:14px; margin-top:6px; max-width:820px; }
+  .legend{ display:flex; flex-wrap:wrap; gap:16px; margin:22px 0 10px; padding:14px 18px;
+    background:var(--surface); border:1px solid var(--border); border-radius:10px; font-size:12.5px; }
+  .legend .k{ display:flex; align-items:center; gap:7px; color:var(--t2); }
+  .swatch{ width:24px; height:12px; border-radius:3px; display:inline-block; }
+  .arrowkey{ width:26px; display:inline-block; text-align:center; color:var(--t1); font-weight:700; }
+  section.map{ margin-top:40px; background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:26px 28px 30px; }
+  .maphead{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
+  .maphead h2{ font-size:19px; font-weight:700; }
+  .code{ font-size:11px; font-weight:700; color:#0d1117; background:var(--gold); padding:2px 8px; border-radius:20px; }
+  .tier{ font-size:11px; color:var(--t2); border:1px solid var(--border); padding:2px 8px; border-radius:20px; }
+  .sub{ color:var(--t2); font-size:13.5px; margin:8px 0 22px; max-width:900px; }
+  /* flow */
+  .flow{ display:flex; align-items:stretch; gap:0; flex-wrap:wrap; }
+  .node{ background:var(--card); border:1.5px solid var(--border); border-radius:9px;
+    padding:12px 14px; min-width:150px; max-width:210px; box-shadow:0 3px 8px rgba(0,0,0,.3); }
+  .node .nt{ font-size:13px; font-weight:650; color:var(--t1); }
+  .node .nd{ font-size:11.5px; color:var(--t2); margin-top:4px; }
+  .node.blue{ border-color:var(--blue); } .node.green{ border-color:var(--green); }
+  .node.amber{ border-color:var(--amber); } .node.purple{ border-color:var(--purple); }
+  .node.red{ border-color:var(--red); } .node.gold{ border-color:var(--gold); }
+  .arrow{ align-self:center; color:var(--t2); font-size:22px; padding:0 10px; font-weight:700; }
+  .arrow .lbl{ display:block; font-size:9.5px; letter-spacing:.5px; text-align:center; color:var(--t3);
+    font-weight:700; margin-bottom:-4px; }
+  .down{ width:100%; text-align:center; color:var(--t2); font-size:20px; padding:6px 0; }
+  .row{ display:flex; align-items:stretch; gap:0; flex-wrap:wrap; margin-bottom:2px; }
+  .diamond{ background:rgba(210,153,34,.12); border:1.5px solid var(--amber); border-radius:9px;
+    padding:12px 16px; max-width:230px; text-align:center; align-self:center; }
+  .diamond .nt{ font-size:12.5px; font-weight:650; color:var(--amber); }
+  .branch{ display:flex; gap:14px; flex-wrap:wrap; margin-top:6px; }
+  .lane{ flex:1; min-width:230px; background:var(--card); border:1px solid var(--border);
+    border-radius:10px; padding:6px 6px 10px; }
+  .lane .lh{ font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+    text-align:center; padding:6px; border-radius:7px; margin-bottom:8px; }
+  .lane.ok .lh{ background:rgba(63,185,80,.12); color:var(--green); }
+  .lane.bad .lh{ background:rgba(248,81,73,.12); color:var(--red); }
+  .fail{ margin-top:16px; background:rgba(248,81,73,.07); border:1px solid rgba(248,81,73,.5);
+    border-left:4px solid var(--red); border-radius:8px; padding:12px 16px; }
+  .fail .ft{ font-size:11px; font-weight:700; color:var(--red); letter-spacing:.6px; text-transform:uppercase; }
+  .fail p{ font-size:12.5px; color:var(--t1); margin-top:5px; }
+  .why{ margin-top:14px; background:rgba(88,166,255,.06); border:1px solid rgba(88,166,255,.35);
+    border-left:4px solid var(--blue); border-radius:8px; padding:12px 16px; }
+  .why .wt{ font-size:11px; font-weight:700; color:var(--blue); letter-spacing:.6px; text-transform:uppercase; }
+  .why p{ font-size:12.5px; color:var(--t1); margin-top:5px; }
+  .steps{ display:flex; flex-direction:column; gap:6px; }
+  .step{ display:flex; gap:12px; align-items:flex-start; background:var(--card);
+    border:1px solid var(--border); border-radius:9px; padding:11px 14px; }
+  .step .num{ flex:0 0 26px; height:26px; border-radius:50%; background:rgba(88,166,255,.15);
+    border:1.5px solid var(--blue); color:var(--blue); font-weight:700; font-size:12px;
+    display:flex; align-items:center; justify-content:center; }
+  .step .sc .st{ font-size:13px; font-weight:650; }
+  .step .sc .sd{ font-size:11.5px; color:var(--t2); margin-top:2px; }
+  .gate{ font-size:10.5px; color:var(--amber); font-weight:700; margin-top:4px; letter-spacing:.3px; }
+  .vstamp{ text-align:right; color:var(--t3); font-size:11px; margin-top:44px;
+    border-top:1px solid var(--border2); padding-top:12px; }
+  .ruleset{ display:flex; flex-direction:column; gap:5px; }
+  .rule{ display:flex; gap:12px; align-items:center; background:var(--card); border:1px solid var(--border);
+    border-radius:7px; padding:9px 13px; font-family:'SF Mono',Consolas,monospace; font-size:12px; }
+  .rule .rn{ color:var(--t3); font-weight:700; flex:0 0 20px; }
+  .rule.permit{ border-left:3px solid var(--green); }
+  .rule.deny{ border-left:3px solid var(--red); }
+  .rule .tag{ margin-left:auto; font-family:'Segoe UI',sans-serif; font-size:10px; font-weight:700;
+    padding:2px 8px; border-radius:20px; }
+  .rule.permit .tag{ background:rgba(63,185,80,.14); color:var(--green); }
+  .rule.deny .tag{ background:rgba(248,81,73,.14); color:var(--red); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="doc">
+    <h1>CompTIA Security+ SY0-701 — Causal Architectural Maps</h1>
+    <p>Five high-value concepts drawn as causal chains, not org charts. Each map shows the mechanism
+    (blue flow), decision points (amber), correct vs. failure branches, and the conditions under which the
+    control breaks (red). Read them as the reasoning behind the exam's scenario and performance-based questions.</p>
+  </header>
+
+  <div class="legend">
+    <span class="k"><span class="swatch" style="background:var(--blue)"></span>Primary mechanism / flow</span>
+    <span class="k"><span class="swatch" style="background:var(--amber)"></span>Decision point</span>
+    <span class="k"><span class="swatch" style="background:var(--green)"></span>Correct / secure path</span>
+    <span class="k"><span class="swatch" style="background:var(--red)"></span>Failure / risk node</span>
+    <span class="k"><span class="swatch" style="background:var(--purple)"></span>Management action</span>
+    <span class="k"><span class="arrowkey">&rarr;</span>Causal step</span>
+  </div>
+
+  <!-- MAP 1: ZERO TRUST -->
+  <section class="map">
+    <div class="maphead"><h2>1 · Zero Trust — Per-Request Evaluation</h2>
+      <span class="code">1.2</span><span class="tier">Application → Analysis</span></div>
+    <p class="sub">Zero trust removes location as a trust signal. Every request is re-evaluated by the
+      <b>control plane</b> (decision) and enforced by the <b>data plane</b> (action) — separating "who decides"
+      from "who enforces" so policy scales independently of where the resource lives.</p>
+    <div class="flow">
+      <div class="node blue"><div class="nt">Subject + Device</div><div class="nd">User/service makes a request; carries identity &amp; device posture</div></div>
+      <div class="arrow"><span class="lbl">REQUEST</span>&rarr;</div>
+      <div class="node purple"><div class="nt">Policy Engine</div><div class="nd">Control plane — scores identity, device health, context, risk</div></div>
+      <div class="arrow"><span class="lbl">VERDICT</span>&rarr;</div>
+      <div class="node purple"><div class="nt">Policy Administrator</div><div class="nd">Control plane — issues/revokes the session credential</div></div>
+    </div>
+    <div class="down">&darr;</div>
+    <div class="row">
+      <div class="diamond"><div class="nt">Meets policy right now?</div></div>
+    </div>
+    <div class="branch">
+      <div class="lane ok"><div class="lh">Allow → Data Plane enforces</div>
+        <div class="node green" style="max-width:none"><div class="nt">Policy Enforcement Point</div>
+          <div class="nd">Grants a scoped, time-bound session to the specific resource — nothing more</div></div></div>
+      <div class="lane bad"><div class="lh">Deny / revoke</div>
+        <div class="node red" style="max-width:none"><div class="nt">Session dropped</div>
+          <div class="nd">Failed device-posture or risk check ends access mid-session — no lateral free pass</div></div></div>
+    </div>
+    <div class="why"><div class="wt">Why it works</div>
+      <p>The perimeter model trusted anything "inside," so one breach enabled free lateral movement. Re-verifying
+      every request against live context means a stolen credential alone is insufficient — the device and risk
+      signals must also pass, every time.</p></div>
+    <div class="fail"><div class="ft">Fails when</div>
+      <p>The policy engine trusts a stale signal (cached posture, long-lived token) or the enforcement point is
+      bypassable via a flat network path — reintroducing the implicit trust zero trust was meant to remove.</p></div>
+  </section>
+
+  <!-- MAP 2: INCIDENT RESPONSE -->
+  <section class="map">
+    <div class="maphead"><h2>2 · Incident Response Lifecycle — Why Order Is Causal</h2>
+      <span class="code">4.8</span><span class="tier">Application → Analysis</span></div>
+    <p class="sub">The seven phases run in sequence because each creates the precondition the next depends on.
+      The gates (amber) are the exam's favorite traps — skip one and the later phase fails.</p>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div class="sc"><div class="st">Preparation</div>
+        <div class="sd">Plans, tooling, comms trees, and training staged before any incident.</div></div></div>
+      <div class="step"><div class="num">2</div><div class="sc"><div class="st">Detection</div>
+        <div class="sd">Alert/indicator surfaces a possible incident (SIEM, EDR, user report).</div></div></div>
+      <div class="step"><div class="num">3</div><div class="sc"><div class="st">Analysis</div>
+        <div class="sd">Confirm it's real and scope it — which hosts, accounts, data.</div>
+        <div class="gate">GATE → must know scope before you can contain the right things</div></div></div>
+      <div class="step"><div class="num">4</div><div class="sc"><div class="st">Containment</div>
+        <div class="sd">Isolate hosts, disable accounts to stop the spread.</div>
+        <div class="gate">GATE → must cut the attacker's channel before removing malware</div></div></div>
+      <div class="step"><div class="num">5</div><div class="sc"><div class="st">Eradication</div>
+        <div class="sd">Remove malware, backdoors, and the vulnerable config.</div></div></div>
+      <div class="step"><div class="num">6</div><div class="sc"><div class="st">Recovery</div>
+        <div class="sd">Restore validated systems from clean backups; monitor closely.</div></div></div>
+      <div class="step"><div class="num">7</div><div class="sc"><div class="st">Lessons Learned</div>
+        <div class="sd">Root-cause review feeds improvements back into Preparation (the loop closes).</div></div></div>
+    </div>
+    <div class="fail"><div class="ft">Fails when</div>
+      <p>Eradication runs before containment → attacker re-enters through the still-open channel. Or systems are
+      wiped before forensic capture → evidence and chain of custody are destroyed, so root cause is never found.</p></div>
+  </section>
+
+  <!-- MAP 3: FIREWALL RULE ORDERING -->
+  <section class="map">
+    <div class="maphead"><h2>3 · Firewall Rule Ordering — First-Match Logic</h2>
+      <span class="code">4.5</span><span class="tier">Analysis · PBQ</span></div>
+    <p class="sub">Firewalls evaluate top-down and act on the <b>first</b> matching rule, then stop. Order encodes
+      logic: a broad rule above a specific one shadows it. Trace the flow "permit HTTPS to WebServer; block all
+      else to its subnet" against two orderings:</p>
+    <div class="branch">
+      <div class="lane ok"><div class="lh">Correct order — specific first</div>
+        <div class="ruleset">
+          <div class="rule permit"><span class="rn">1</span>permit tcp any → Web 443<span class="tag">MATCH ✓</span></div>
+          <div class="rule deny"><span class="rn">2</span>deny ip any → WebSubnet<span class="tag">reached only if no match above</span></div>
+          <div class="rule deny"><span class="rn">3</span>implicit deny-all<span class="tag">default</span></div>
+        </div>
+        <div class="node green" style="max-width:none;margin-top:8px"><div class="nt">Result</div>
+          <div class="nd">HTTPS to the web server is permitted; everything else to the subnet is denied. Intended policy holds.</div></div></div>
+      <div class="lane bad"><div class="lh">Wrong order — broad first</div>
+        <div class="ruleset">
+          <div class="rule deny"><span class="rn">1</span>deny ip any → WebSubnet<span class="tag">MATCH ✗</span></div>
+          <div class="rule permit"><span class="rn">2</span>permit tcp any → Web 443<span class="tag">never evaluated</span></div>
+          <div class="rule deny"><span class="rn">3</span>implicit deny-all<span class="tag">default</span></div>
+        </div>
+        <div class="node red" style="max-width:none;margin-top:8px"><div class="nt">Result</div>
+          <div class="nd">The broad deny matches first and stops evaluation — the permit never fires. Legitimate HTTPS is blocked.</div></div></div>
+    </div>
+    <div class="why"><div class="wt">Why it works</div>
+      <p>Because evaluation halts at the first match, specificity must decrease as you go down. The implicit
+      deny-all at the bottom is a fail-safe default: anything not explicitly permitted is dropped.</p></div>
+    <div class="fail"><div class="ft">Fails when</div>
+      <p>An "allow any" rule drifts to the top during a change — it matches everything and silently nullifies
+      every rule below it.</p></div>
+  </section>
+
+  <!-- MAP 4: QUANTITATIVE RISK -->
+  <section class="map">
+    <div class="maphead"><h2>4 · Quantitative Risk — Is the Control Worth It?</h2>
+      <span class="code">5.2</span><span class="tier">Application → Analysis</span></div>
+    <p class="sub">Risk math converts exposure into dollars so a control decision becomes a calculation, not an
+      opinion. The chain builds ALE, then compares it to the control's annual cost.</p>
+    <div class="flow">
+      <div class="node blue"><div class="nt">Asset Value × Exposure Factor</div><div class="nd">$100k × 30% loss per flood</div></div>
+      <div class="arrow"><span class="lbl">=</span>&rarr;</div>
+      <div class="node blue"><div class="nt">SLE = $30,000</div><div class="nd">Single Loss Expectancy — one event</div></div>
+      <div class="arrow"><span class="lbl">× ARO</span>&rarr;</div>
+      <div class="node blue"><div class="nt">ALE = $6,000/yr</div><div class="nd">SLE $30k × ARO 0.2 (once / 5 yrs)</div></div>
+    </div>
+    <div class="down">&darr;</div>
+    <div class="row"><div class="diamond"><div class="nt">Control's annual cost &lt; $6,000 ALE?</div></div></div>
+    <div class="branch">
+      <div class="lane ok"><div class="lh">Yes → justified</div>
+        <div class="node green" style="max-width:none"><div class="nt">$2,000/yr flood control</div>
+          <div class="nd">Removes $6k risk for $2k → net saving. Economically sound (mitigate).</div></div></div>
+      <div class="lane bad"><div class="lh">No → not justified</div>
+        <div class="node red" style="max-width:none"><div class="nt">$9,000/yr control</div>
+          <div class="nd">Costs more than the risk it removes → accept the risk or find a cheaper option.</div></div></div>
+    </div>
+    <div class="why"><div class="wt">Why it works</div>
+      <p>ALE is the common currency that lets you compare unlike risks and controls objectively. A control is
+      worth buying only when it reduces ALE by more than it costs — the core cost/benefit test behind treatment
+      choices (mitigate / transfer / accept / avoid).</p></div>
+  </section>
+
+  <!-- MAP 5: DEFENSE IN DEPTH / RANSOMWARE -->
+  <section class="map">
+    <div class="maphead"><h2>5 · Defense in Depth — Mapping Controls to a Ransomware Kill Chain</h2>
+      <span class="code">2.5 · 2.4</span><span class="tier">Application → Analysis</span></div>
+    <p class="sub">No single control is complete, so layers are chosen so a failure of one is contained by the
+      next. Each attack stage (blue) maps to the control (green) that limits it.</p>
+    <div class="steps">
+      <div class="step"><div class="num" style="background:rgba(248,81,73,.15);border-color:var(--red);color:var(--red)">A</div>
+        <div class="sc"><div class="st">Initial access — phishing link clicked</div>
+          <div class="sd">Control: awareness training + email security (SPF/DKIM/DMARC) lowers the click rate and blocks spoofed senders.</div></div></div>
+      <div class="step"><div class="num" style="background:rgba(248,81,73,.15);border-color:var(--red);color:var(--red)">B</div>
+        <div class="sc"><div class="st">Execution + privilege escalation</div>
+          <div class="sd">Control: least privilege limits what the account can reach; EDR detects the malicious process behavior.</div></div></div>
+      <div class="step"><div class="num" style="background:rgba(248,81,73,.15);border-color:var(--red);color:var(--red)">C</div>
+        <div class="sc"><div class="st">Lateral movement across the network</div>
+          <div class="sd">Control: network segmentation contains the blast radius to one VLAN — the malware can't reach other zones.</div></div></div>
+      <div class="step"><div class="num" style="background:rgba(248,81,73,.15);border-color:var(--red);color:var(--red)">D</div>
+        <div class="sc"><div class="st">Encryption of files (impact)</div>
+          <div class="sd">Control: offline/immutable backups (corrective) enable recovery without paying; monitoring flags the mass-write spike.</div></div></div>
+    </div>
+    <div class="why"><div class="wt">Why it works</div>
+      <p>The layers are independent in kind — prevention, detection, containment, recovery — so defeating one
+      does not defeat the rest. Diversity across control <i>types</i> matters more than the raw number of controls.</p></div>
+    <div class="fail"><div class="ft">Fails when</div>
+      <p>Layers are redundant in kind (e.g. three detective tools, no containment or recovery). The attacker is
+      seen at every step but never stopped, and there's no clean restore point.</p></div>
+  </section>
+
+  <div class="vstamp">Security+ SY0-701 Causal Maps · v1.0 · September 2026 · grounded in the SY0-701 (V7) blueprint</div>
+</div>
+</body>
+</html>
